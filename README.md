@@ -1,19 +1,17 @@
 # Integreatly Operator
 
----
-**NOTE**
+A Kubernetes Operator based on the Operator SDK for installing and reconciling managed products.
 
-When working on `RHOAM`, all `make` commands should be prefixed with `INSTALLATION_TYPE=managed-api`.
-This will configure any variables that may be required.
+Integreatly Operator can be installed using two different flavours, managed and managed-api
 
-The default `INSTALLATION_TYPE` is `managed` which configures variables for use with `RHMI`
-
----
-
-A Kubernetes Operator based on the Operator SDK for installing and reconciling Integreatly products.
+To switch between the two you can use export the INSTALLATION_TYPE env or use it in conjunction with any of the make commands referenced in this README
 
 ### Installed products
-Currently the operator installs the following products:
+
+The operator installs the following products:
+
+### managed
+
 - AMQ Online
 - AMQ Streams
 - Codeready
@@ -23,28 +21,25 @@ Currently the operator installs the following products:
 - 3scale
 - Integreatly solution explorer
 
+### managed-api
+
+- 3scale
+- RHSSO (both a cluster instance and a user instance)
+- Marin3r
+
+
 ## Prerequisites
 
-NOTE: Due to a change in how networking is configured for openshift in v4.4.6 (mentioned in the [cloud resource operator](https://github.com/integr8ly/cloud-resource-operator#supported-openshift-versions)) there is a limitation on the version of Openshift that RHMI can be installed on for BYOC clusters.
-Due to this change the use of integreatly-operator <= v2.4.0 on Openshift >= v4.4.6 is unsupported. Please use >= v2.5.0 of integreatly-operator for Openshift >= v4.4.6.
-
-- [operator-sdk](https://github.com/operator-framework/operator-sdk) version v0.15.1.
+- [operator-sdk](https://github.com/operator-framework/operator-sdk) version v1.2.0.
 - [go](https://golang.org/dl/) version 1.13.4+
 - [moq](https://github.com/matryer/moq)
-- [oc](https://docs.okd.io/3.11/cli_reference/get_started_cli.html#cli-reference-get-started-cli) version v3.11+
-- Access to an Openshift v4.2.0+ cluster
+- [oc](https://docs.okd.io/latest/cli_reference/openshift_cli/getting-started-cli.html) version v4.6+
+- Access to an Openshift v4.6.0+ cluster
 - A user with administrative privileges in the OpenShift cluster
-- AWS account with permissions to create S3 buckets
 
-After installation, the following commands must be run to avoid a known [issue](https://github.com/matryer/moq/issues/98) related to the Moq package:
-```
-make code/compile
-go install github.com/matryer/moq
-```
+## Local Development
 
-## Local Setup
-
-Download the integreatly-operator project:
+## Clone the integreatly-operator
 ```sh
 mkdir -p $GOPATH/src/github.com/integr8ly
 cd $GOPATH/src/github.com/integr8ly
@@ -52,53 +47,30 @@ git clone https://github.com/integr8ly/integreatly-operator
 cd integreatly-operator
 ```
 
-If the cluster is not already prepared for the integreatly-operator, you will need to do the following:
+### Prepare your cluster
+
+If you are working against a fresh cluster it will need to be prepared using the following:
+Include the INSTALLATION_TYPE if you haven't already exported it
+
 ```
-make cluster/prepare/project
-make cluster/prepare/crd
-make cluster/prepare/smtp
-```
-
-* 3scale requires AWS S3 bucket credentials for storage. The bucket should have all public access turned off.
-
-Currently this secret (`threescale-blobstorage-<installation-name>`) is created with dummy credentials by the [cloud resource operator](https://github.com/integr8ly/cloud-resource-operator), in the namespace the integreatly operator is deployed into. In order for this feature to work, these credentials should be replaced:
-    * _bucketName_: The name of the AWS bucket
-    * _bucketRegion_: The AWS region where the bucket has been created
-    * _credentialKeyID_: The AWS access key
-    * _credentialSecretKey_: The AWS secret key
-
-You can use this command to replace S3 credentials in 3Scale secret:
-```sh
-oc process -f deploy/s3-secret.yaml -p AWS_ACCESS_KEY_ID=<YOURID> -p AWS_SECRET_ACCESS_KEY=<YOURKEY> -p AWS_BUCKET=<YOURBUCKET> -p AWS_REGION=eu-west-1 -p NAMESPACE=<integreatly-operator-namespace> -p NAME=threescale-blobstorage-<installation-name> | oc replace -f -
+INSTALLATION_TYPE=<managed/managed-api> make cluster/prepare/local
 ```
 
-* Backup jobs require AWS S3 bucket credentials for storage. A `backups-s3-credentials` Secret is created the same way as a 3Scale secret described above.
+### Configuration options
 
-You can use this command to replace S3 credentials in backup secret:
-```sh
-oc process -f deploy/s3-secret.yaml -p AWS_ACCESS_KEY_ID=<YOURID> -p AWS_SECRET_ACCESS_KEY=<YOURKEY> -p AWS_BUCKET=<YOURBUCKET> -p AWS_REGION=eu-west-1 -p NAMESPACE=<integreatly-operator-namespace> | oc replace -f -
+USE_CLUSTER_STORAGE - true or false
+IN_PROW - true or false
+
+
+### Run integreatly-operator
+Include the INSTALLATION_TYPE if you haven't already exported it
+
+```The operator can now be run locally
+INSTALLATION_TYPE=<managed/managed-api> make code/run/service_account
 ```
 
-### RHMI custom resource
-An `RHMI` custom resource can now be created which will kick of the installation of the integreatly products, once the operator is running:
-```sh
-# Create the installation custom resource
-oc create -f deploy/crds/examples/rhmi.cr.yaml
+*Note:* if the operator doesn't find an RHMI cr, it will create one (Name: `rhmi/rhoam`).
 
-# The operator can now be run locally
-make code/run
-```
-*Note:* if an operator doesn't find RHMI resource, it will create one (Name: `rhmi`).
-
-### Logging in to SSO
-
-In the OpenShift UI, in `Projects > redhat-rhmi-rhsso > Networking > Routes`, select the `sso` route to open up the SSO login page.
-
-# Bootstrap the project
-
-```sh
-make cluster/prepare/local
-```
 
 ### Configuring Github OAuth
 
@@ -124,51 +96,6 @@ Once the Oauth application has been registered, navigate to the Openshift consol
 
 ## Deploying to a Cluster with OLM and the Bundle Format
 
-This deployment approach uses a CatalogSource which references an index image. The index
-image contains references to image bundles which specify the specific versions of the RHMI operator. 
-
-### Nomenclature
-
-* _Bundle_: A bundle is a non-runnable docker image containing the operator 
-  manifests for a specific release.
-* _Index_: An index is a docker image exposing a database throgh GRPc, which
-  contains references to many bundles
-
-> **Both bundles and indices are potentially pulled by the cluster, so they must be made public in order to successfully perform the installation**
-
-
-### Prerequisites
-* `opm` is a CLI tool used to automate the generation of bundles and indices.
-  * Information on how to build it can be found [here](https://github.com/operator-framework/operator-registry/blob/master/docs/design/operator-bundle.md#opm-operator-package-manager)
-  * Releases page for direct download: https://github.com/operator-framework/operator-registry/releases
-* Bundle validation requires operator-sdk >= 0.18.2 and above
-
-Make sure to export the variables above (see [local setup](#local-setup)), then run:
-
-For RHMI:
-```sh
-make cluster/prepare/bundle
-```
-
-For RHOAM:
-```sh
-INSTALLATION_TYPE=managed-api make cluster/prepare/bundle
-```
-
-For local development, update the ORG and ensure the repositories are publicly accessible.
-Potentially, 3 repositories need to be publicly available, 
-
-For RHMI:
-* \<REG>/\<ORG>/integreatly-operator
-* \<REG>/\<ORG>/integreatly-index
-* \<REG>/\<ORG>/integreatly-bundle 
-
-For RHOAM:
-* \<REG>/\<ORG>/integreatly-operator
-* \<REG>/\<ORG>/managed-api-service-index
-* \<REG>/\<ORG>/managed-api-service-bundle 
-
-
 ### Variables
 The following variables can prepend the make target below 
 * CHANNEL, default alpha
@@ -177,93 +104,13 @@ The following variables can prepend the make target below
 * BUILD_TOOL, default docker
 * OLM_TYPE, default integreatly-operator
 
-### Deployment Scenarios
 
-Depending on the deployment type, you need to specify whether it is RHOAM or RHMI that you would like to work with.
-
-For RHMI:
-```sh
-export OLM_TYPE=integreatly-operator
-```
-For RHOAM:
-```sh
-export OLM_TYPE=managed-api-service
-```
-
-#### Deploy the latest bundle version 
-This assumes no prior installation of the RHMI/RHOAM operator. As such, it will remove the replaces field in the CSV file to 
-prevent the attempted replacement of an existing version of the operator available for installation.
-
-```sh
-ORG=<YOUR_ORG> make install/olm/bundle 
-```
-
-#### Deploy a specific bundle version
-This will assume not upgrading and remove the replaces field from the CSV
-
-Note: The version you are pointing to, must exist in the deploy/OLM_TYPE 
-
-```sh
-ORG=<YOUR_ORG> BUNDLE_VERSIONS="1.1.0" make install/olm/bundle
-```
-
-#### Deploy an upgrade version
-Example shows upgrade from 1.1.0 to 1.2.0. 1.1.0 must already be installed on the cluster and a 1.2.0 release must be available.
-1.2.0 must reference 1.1.0 in the CSV replaces field but 1.1.0 can not have the "replaces" field set.
-
-```sh
-ORG=<YOUR_ORG> BUNDLE_VERSIONS="1.2.0,1.1.0" UPGRADE=true make install/olm/bundle 
-```
-
-#### Create a new bundle and deploy
-The SEMVER version should be a logical SEMVER increment of the existing lastest bundle. 
-The latest bundle will be copied and used as a reference for this new release.  
-**NOTE:** If creating a new operator image in your repository, you need to update the CSV with references
-to your image.
-```sh
-ORG=<YOUR_ORG> SEMVER=<X.Y.Z> make release/prepare
-ORG=<YOUR_ORG> TAG=<X.Y.Z> make image/build/push    (create a new operator image if required)
-ORG=<YOUR_ORG> make install/olm/bundle 
-```
-**NOTE:** If creating a new version to replace an existing i.e. upgrade, add both versions to the BUNDLE_VERSIONS VARIABLE
-```sh
-ORG=<YOUR_ORG> BUNDLE_VERSIONS="<NEW-SEMVER>,<OLD-SEMVER>" make install/olm/bundle 
-```
-
-
+Run the script  ./scripts/bundle-rhmi-opertors.sh
 
 ### Install from OperatorHub
 OLM will created a PackageManifest (integreatly) based on the CatalogSource (rhmi-operators) in the openshift-marketplace namespace. 
 Confirm both and then find the RHMI in the OperatorHub. Verify that the version references the latest version available in the index and click install
 
-
-## Deploying to a Cluster with OLM and OperatorSource (Deprecated)
-Make sure to export the variables above (see [local setup](#local-setup)), then run:
-
-```sh
-make cluster/prepare
-```
-
-Within a few minutes, the Integreatly operator should be visible in the OperatorHub (`Catalog > OperatorHub`). To create a new subscription, click on the Install button, choose to install the operator in the created namespace and keep the approval strategy on automatic.
-
-Once the subscription shows a status of `installed`, a new `RHMI` custom resource can be created which will begin to install the supported products.
-
-In `Catalog > Developer Catalog`, choose the RHMI Installation and click create. An example RHMI CR can be found below:
-
-```yml
-apiVersion: integreatly.org/v1alpha1
-kind: RHMI
-metadata:
-  name: example-rhmi
-spec:
-  type: managed
-  namespacePrefix: redhat-rhmi-
-  selfSignedCerts: true
-  useClusterStorage: true
-  smtpSecret: redhat-rhmi-smtp
-  deadMansSnitchSecret: redhat-rhmi-deadmanssnitch
-  pagerdutySecret: redhat-rhmi-pagerduty
-```
 
 ## Set up testing IDP for OSD cluster
 You can use the `scripts/setup-sso-idp.sh` script to setup a "testing-idp" realm in cluster SSO instance and add it as IDP of your OSD cluster.
@@ -308,7 +155,7 @@ To run a single E2E test against a running cluster run the command below where E
 ```
 go clean -testcache && go test -v ./test/functional -run="//^E03" -timeout=80m
 ```
-### Products tests
+### Product tests
 
 To run products tests against an existing RHMI cluster
 ```
