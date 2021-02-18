@@ -37,9 +37,21 @@ The operator installs the following products:
 - Access to an Openshift v4.6.0+ cluster
 - A user with administrative privileges in the OpenShift cluster
 
+After installation, the following commands must be run to avoid a known issue related to the Moq package:
+```shell
+make code/compile
+go install github.com/matryer/moq
+```
+
+## Using `ocm` for installation of RHMI
+
+If you want to test your changes on a cluster, the easiest solution would be to spin up OSD 4 cluster using `ocm`.
+See [here](https://github.com/integr8ly/delorean/tree/master/docs/ocm) for an up to date guide on how to do this.
+
+
 ## Local Development
 
-## Clone the integreatly-operator
+### 1. Clone the integreatly-operator
 ```sh
 mkdir -p $GOPATH/src/github.com/integr8ly
 cd $GOPATH/src/github.com/integr8ly
@@ -47,32 +59,41 @@ git clone https://github.com/integr8ly/integreatly-operator
 cd integreatly-operator
 ```
 
-### Prepare your cluster
+### 2. Prepare your cluster
 
-If you are working against a fresh cluster it will need to be prepared using the following:
-Include the INSTALLATION_TYPE if you haven't already exported it
-
+If you are working against a fresh cluster it will need to be prepared using the following. 
+Ensure you are logged into a cluster by `oc whoami`.
+Include the `INSTALLATION_TYPE` if you haven't already exported it. Options are: 
+- managed (RHMI)
+- managed-api (RHOAM)
 ```
 INSTALLATION_TYPE=<managed/managed-api> make cluster/prepare/local
 ```
 
-### Configuration options
+### 3. Configuration options
 
-USE_CLUSTER_STORAGE - true or false
-IN_PROW - true or false
+`USE_CLUSTER_STORAGE` - true or false \
+`IN_PROW` - true or false
 
 
-### Run integreatly-operator
-Include the INSTALLATION_TYPE if you haven't already exported it
-
-```The operator can now be run locally
+### 4. Run integreatly-operator
+Include the `INSTALLATION_TYPE` if you haven't already exported it. 
+The operator can now be run locally:
+```
 INSTALLATION_TYPE=<managed/managed-api> make code/run/service_account
 ```
 
 *Note:* if the operator doesn't find an RHMI cr, it will create one (Name: `rhmi/rhoam`).
 
+### 5. Validate installation 
 
-### Configuring Github OAuth
+Use following commands to validate that installation succeeded.
+
+For `RHMI` (managed): `oc get rhmi rhmi -n redhat-rhmi-operator -o json | jq .status`
+
+For `RHOAM` (managed-api): `oc get rhmi rhoam -n redhat-rhoam-operator -o json | jq .status `
+
+## Configuring Github OAuth
 
 *Note:* The following steps are only valid for OCP4 environments and will not work on OSD due to the Oauth resource being periodically reset by Hive.
 
@@ -86,7 +107,7 @@ Once the Oauth application has been registered, navigate to the Openshift consol
 
 *Note:* These steps need to be performed by a cluster admin
 
-- Select the `Search` option in the left hand nav of the console and select `Oauth` from the dropdown
+- Select the `Search` option in the left hand nav of the console and select `Oauth` from the "Resources" dropdown
 - A single Oauth resource should exist named `cluster`, click into this resource
 - Scroll to the bottom of the console and select the `Github` option from the `add` dropdown
 - Next, add the `Client ID` and `Client Secret` of the registered Github Oauth application
@@ -96,7 +117,7 @@ Once the Oauth application has been registered, navigate to the Openshift consol
 
 ## Deploying to a Cluster with OLM and the Bundle Format
 
-### Variables
+### 1. Variables
 The following variables can prepend the make target below 
 * CHANNEL, default alpha
 * ORG, default integreatly
@@ -107,7 +128,7 @@ The following variables can prepend the make target below
 
 Run the script  ./scripts/bundle-rhmi-opertors.sh
 
-### Install from OperatorHub
+### 2. Install from OperatorHub
 OLM will created a PackageManifest (integreatly) based on the CatalogSource (rhmi-operators) in the openshift-marketplace namespace. 
 Confirm both and then find the RHMI in the OperatorHub. Verify that the version references the latest version available in the index and click install
 
@@ -161,11 +182,6 @@ To run products tests against an existing RHMI cluster
 ```
 make test/products/local
 ```
-
-## Using `ocm` for installation of RHMI
-
-If you want to test your changes on a cluster, the easiest solution would be to spin up OSD 4 cluster using `ocm`.
-See [here](https://github.com/integr8ly/delorean/tree/master/docs/ocm) for an up to date guide on how to do this.
 
 ## Release
 
