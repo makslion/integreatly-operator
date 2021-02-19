@@ -15,26 +15,13 @@ by external entities.
 
 `make manifest/release`
 
-**Required System Variables**
 
-- SEMVER -> valid x.y.z format. Usage: `SEMVER=2.6.0`
-
-**Optional System Variables**
-
-- OLM_TYPE -> Which resource the release csv will be created under. Current Default: `integreatly-operator`.  Usage: `OLM_TYPE=managed-api-service`
-- ORG -> The quay.io org to where the images will be pushed. Setting the ORG will change the image locations specified in \<olm_type>.\<version>.clusterserviceversion.yaml under `containerImage` and `image`. Default: `integreatly`. Usage: `ORG=<user-repo>`.
-
-* CHANNEL, default alpha
-* ORG, default integreatly
-* REG, default quay.io
-* BUILD_TOOL, default docker
-* OLM_TYPE, default integreatly-operator
 
 ### System variables
 
 | Variable |                      Format                    |     Type     |        Default         | Details |
 |----------|:----------------------------------------------:|:------------:|:----------------------:|---------|
-| SEMVER   | `<x.y.z>`                                      | **Required** |  n/a                   | ? Example: `SEMVER=2.6.0` |
+| SEMVER   | `<x.y.z>`                                      | **Required** |  n/a                   | Release version of `OLM_TYPE`. Example: `SEMVER=2.6.0` |
 | OLM_TYPE | `integreatly-operator`or `managed-api-service` | Optional     | `integreatly-operator` | Which resource the release csv will be created under. |
 | REG      | `<registry>`                                   | Optional     | `quay.io`              | The `BUILD_TOOL` registry where the bundles/indices that package the operator are stored.
 | ORG      | `<user-repo>`                                  | Optional     | `integreatly`          | The organization/user in the registry that publishes the bundles. Where the images will be pushed to. Setting the ORG will change the image locations specified in `<olm_type>.<version>.clusterserviceversion.yaml` under containerImage and image. |
