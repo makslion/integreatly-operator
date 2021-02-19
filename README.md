@@ -2,9 +2,9 @@
 
 A Kubernetes Operator based on the Operator SDK for installing and reconciling managed products.
 
-Integreatly Operator can be installed using two different flavours, managed and managed-api
+Integreatly Operator can be installed using two different flavours: `managed` or `managed-api`
 
-To switch between the two you can use export the INSTALLATION_TYPE env or use it in conjunction with any of the make commands referenced in this README
+To switch between the two you can use export the `INSTALLATION_TYPE` env or use it in conjunction with any of the make commands referenced in this README
 
 ### Installed products
 
@@ -68,13 +68,7 @@ Include the `INSTALLATION_TYPE`. Details [here](#variables-table)
 INSTALLATION_TYPE=<managed/managed-api> make cluster/prepare/local
 ```
 
-### 3. Configuration options
-
-`USE_CLUSTER_STORAGE` - true or false \
-`IN_PROW` - true or false
-
-
-### 4. Run integreatly-operator
+### 3. Run integreatly-operator
 Include the `INSTALLATION_TYPE` if you haven't already exported it. 
 The operator can now be run locally:
 ```
@@ -83,7 +77,7 @@ INSTALLATION_TYPE=<managed/managed-api> make code/run/service_account
 
 *Note:* if the operator doesn't find an RHMI cr, it will create one (Name: `rhmi/rhoam`).
 
-### 5. Validate installation 
+### 4. Validate installation 
 
 Use following commands to validate that installation succeeded.
 
@@ -96,8 +90,8 @@ For `RHOAM` (managed-api): `oc get rhmi rhoam -n redhat-rhoam-operator -o json |
 | Variable | Options | Type | Default | Details |
 |----------|---------|:----:|---------|-------|
 | INSTALLATION_TYPE     | `managed` or `managed-api`| **Required** |`managed`  | Manages installation type. `managed` stands for RHMI. `managed-api` for RHOAM. |
-| IN_PROW               | `true` or `false`         | Optional      |`false`    | If `true`, reduces the number of pods create. Use for smaller clusters |
-| USE_CLUSTER_STORAGE   | `true` or `false`         | Optional      |`true`     | If `true`, installs application to the cloud provided. Otherwise installs to the openshift. |
+| IN_PROW               | `true` or `false`         | Optional      |`false`    | If `true`, reduces the number of pods created. Use for smaller clusters |
+| USE_CLUSTER_STORAGE   | `true` or `false`         | Optional      |`true`     | If `true`, installs application to the cloud provider. Otherwise installs to the openshift. |
 
 ## Deploying to a Cluster with OLM and the Bundle Format
 
@@ -113,7 +107,7 @@ Confirm both and then find the RHMI in the OperatorHub. Verify that the version 
 
 For more details refer to [this](https://github.com/RHCloudServices/integreatly-help/blob/master/guides/olm/installing-rhmi-bundle-format.md#installing-rhmi-through-olm-with-bundle-format) readme file. 
 
-## 	Individual Development Plan
+## 	Identity Provider setup
 ### Set up testing IDP for OSD cluster
 You can use the `scripts/setup-sso-idp.sh` script to setup a "testing-idp" realm in cluster SSO instance and add it as IDP of your OSD cluster.
 With this script you will get few regular users - test-user[01-10] and few users that will be added to dedicated-admins group - customer-admin[01-03].
