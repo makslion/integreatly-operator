@@ -93,24 +93,19 @@ For `RHOAM` (managed-api): `oc get rhmi rhoam -n redhat-rhoam-operator -o json |
 
 ### Variables table 
 
-| Variable | Options | Type | Details |
-|----------|---------|:------:|---------|
-| IN_PROW  | `true` or `false`| Optional | If `true`, reduces the number of pods create. Use for smaller clusters |
-| USE_CLUSTER_STORAGE | `true` or `false` | Optional | If `true`, installs application to the cloud provided. Otherwise installs to the openshift. |
-| INSTALLATION_TYPE | `managed` or `managed-api` | **Mandatory** | Manages installation type. `managed` stands for RHMI. `managed-api` for RHOAM. |
+| Variable | Options | Type | Default | Details |
+|----------|---------|:----:|---------|-------|
+| INSTALLATION_TYPE     | `managed` or `managed-api`| **Required** |`managed`  | Manages installation type. `managed` stands for RHMI. `managed-api` for RHOAM. |
+| IN_PROW               | `true` or `false`         | Optional      |`false`    | If `true`, reduces the number of pods create. Use for smaller clusters |
+| USE_CLUSTER_STORAGE   | `true` or `false`         | Optional      |`true`     | If `true`, installs application to the cloud provided. Otherwise installs to the openshift. |
 
 ## Deploying to a Cluster with OLM and the Bundle Format
 
-### 1. Variables
-The following variables can prepend the make target below 
-* CHANNEL, default alpha
-* ORG, default integreatly
-* REG, default quay.io
-* BUILD_TOOL, default docker
-* OLM_TYPE, default integreatly-operator
+### 1. Bundles
+There exists a number of variables, that can prepend the make target below. Refer to [this](/scripts/README.md#system-variables) document.
 
 
-Run the script  ./scripts/bundle-rhmi-opertors.sh
+To generate bundles run the script  ./scripts/bundle-rhmi-opertors.sh
 
 ### 2. Install from OperatorHub
 OLM will create a PackageManifest (integreatly) based on the CatalogSource (rhmi-operators) in the openshift-marketplace namespace. 
