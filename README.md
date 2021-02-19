@@ -105,11 +105,13 @@ For `RHOAM` (managed-api): `oc get rhmi rhoam -n redhat-rhoam-operator -o json |
 There exists a number of variables, that can prepend the make target below. Refer to [this](/scripts/README.md#system-variables) document.
 
 
-To generate bundles run the script  ./scripts/bundle-rhmi-opertors.sh
+To generate bundles run the script: `./scripts/bundle-rhmi-opertors.sh `
 
 ### 2. Install from OperatorHub
 OLM will create a PackageManifest (integreatly) based on the CatalogSource (rhmi-operators) in the openshift-marketplace namespace. 
 Confirm both and then find the RHMI in the OperatorHub. Verify that the version references the latest version available in the index and click install
+
+For more details refer to [this](https://github.com/RHCloudServices/integreatly-help/blob/master/guides/olm/installing-rhmi-bundle-format.md#installing-rhmi-through-olm-with-bundle-format) readme file. 
 
 ## 	Individual Development Plan
 ### Set up testing IDP for OSD cluster
