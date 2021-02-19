@@ -63,10 +63,8 @@ cd integreatly-operator
 
 If you are working against a fresh cluster it will need to be prepared using the following. 
 Ensure you are logged into a cluster by `oc whoami`.
-Include the `INSTALLATION_TYPE` if you haven't already exported it. Options are: 
-- managed (RHMI)
-- managed-api (RHOAM)
-```
+Include the `INSTALLATION_TYPE`. Details [here](#variables-table)
+```shell
 INSTALLATION_TYPE=<managed/managed-api> make cluster/prepare/local
 ```
 
@@ -93,7 +91,45 @@ For `RHMI` (managed): `oc get rhmi rhmi -n redhat-rhmi-operator -o json | jq .st
 
 For `RHOAM` (managed-api): `oc get rhmi rhoam -n redhat-rhoam-operator -o json | jq .status `
 
-## Configuring Github OAuth
+### Variables table 
+
+| Variable | Options | Type | Details |
+|----------|---------|:------:|---------|
+| IN_PROW  | `true` or `false`| Optional | If `true`, reduces the number of pods create. Use for smaller clusters |
+| USE_CLUSTER_STORAGE | `true` or `false` | Optional | If `true`, installs application to the cloud provided. Otherwise installs to the openshift. |
+| INSTALLATION_TYPE | `managed` or `managed-api` | **Mandatory** | Manages installation type. `managed` stands for RHMI. `managed-api` for RHOAM. |
+
+## Deploying to a Cluster with OLM and the Bundle Format
+
+### 1. Variables
+The following variables can prepend the make target below 
+* CHANNEL, default alpha
+* ORG, default integreatly
+* REG, default quay.io
+* BUILD_TOOL, default docker
+* OLM_TYPE, default integreatly-operator
+
+
+Run the script  ./scripts/bundle-rhmi-opertors.sh
+
+### 2. Install from OperatorHub
+OLM will create a PackageManifest (integreatly) based on the CatalogSource (rhmi-operators) in the openshift-marketplace namespace. 
+Confirm both and then find the RHMI in the OperatorHub. Verify that the version references the latest version available in the index and click install
+
+## 	Individual Development Plan
+### Set up testing IDP for OSD cluster
+You can use the `scripts/setup-sso-idp.sh` script to setup a "testing-idp" realm in cluster SSO instance and add it as IDP of your OSD cluster.
+With this script you will get few regular users - test-user[01-10] and few users that will be added to dedicated-admins group - customer-admin[01-03].
+
+Prerequisites:
+- `oc` command available on your machine (latest version can be downloaded [here](https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/))
+- `ocm` command available ( the newest CLI can be downloaded [here](https://github.com/openshift-online/ocm-cli/releases) and you install it with `mv (your downloaded file) /usr/local/bin/ocm`) (necessary only if using OSD cluster)
+- OC session with cluster admin permissions in a target cluster
+- OCM session (necessary only if using OSD cluster)
+
+Tip: set `PASSWORD` env var to define a password for the users. Random password is generated when this env var is not set.
+
+### Configuring Github OAuth
 
 *Note:* The following steps are only valid for OCP4 environments and will not work on OSD due to the Oauth resource being periodically reset by Hive.
 
@@ -114,37 +150,6 @@ Once the Oauth application has been registered, navigate to the Openshift consol
 - Ensure that the Github organization from where the Oauth application was created is specified in the Organization field
 - Once happy that all necessary configurations have been added, click the `Add` button
 - For validation purposes, log into the Openshift console from another browser and check that the Github IDP is listed on the login screen
-
-## Deploying to a Cluster with OLM and the Bundle Format
-
-### 1. Variables
-The following variables can prepend the make target below 
-* CHANNEL, default alpha
-* ORG, default integreatly
-* REG, default quay.io
-* BUILD_TOOL, default docker
-* OLM_TYPE, default integreatly-operator
-
-
-Run the script  ./scripts/bundle-rhmi-opertors.sh
-
-### 2. Install from OperatorHub
-OLM will created a PackageManifest (integreatly) based on the CatalogSource (rhmi-operators) in the openshift-marketplace namespace. 
-Confirm both and then find the RHMI in the OperatorHub. Verify that the version references the latest version available in the index and click install
-
-
-## Set up testing IDP for OSD cluster
-You can use the `scripts/setup-sso-idp.sh` script to setup a "testing-idp" realm in cluster SSO instance and add it as IDP of your OSD cluster.
-With this script you will get few regular users - test-user[01-10] and few users that will be added to dedicated-admins group - customer-admin[01-03].
-
-Prerequisites:
-- `oc` command available on your machine (latest version can be downloaded [here](https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/))
-- `ocm` command available ( the newest CLI can be downloaded [here](https://github.com/openshift-online/ocm-cli/releases) and you install it with `mv (your downloaded file) /usr/local/bin/ocm`) (necessary only if using OSD cluster)
-- OC session with cluster admin permissions in a target cluster
-- OCM session (necessary only if using OSD cluster)
-
-Tip: set `PASSWORD` env var to define a password for the users. Random password is generated when this env var is not set.
-
 
 ## Set up dedicated admins
 
