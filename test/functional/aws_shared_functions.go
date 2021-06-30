@@ -2,11 +2,9 @@ package functional
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-
-	"github.com/aws/aws-sdk-go/service/ec2"
+	//"github.com/aws/aws-sdk-go/service/ec2"
 
 	integreatlyv1alpha1 "github.com/integr8ly/integreatly-operator/apis/v1alpha1"
 
@@ -256,38 +254,38 @@ func getCROAnnotation(instance metav1.Object) (string, error) {
 	return "", errors.New(fmt.Sprintf("no resource identifier found for resource %s", instance.GetName()))
 }
 
-func getStrategyForResource(configMap *v1.ConfigMap, resourceType, tier string) (*strategyMap, error) {
-	rawStrategyMapping := configMap.Data[resourceType]
-	if rawStrategyMapping == "" {
-		return nil, fmt.Errorf("aws strategy for resource type: %s is not defined", resourceType)
-	}
-	var strategyMapping map[string]*strategyMap
-	if err := json.Unmarshal([]byte(rawStrategyMapping), &strategyMapping); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal strategy mapping for resource type %s: %v", resourceType, err)
-	}
-	if strategyMapping[tier] == nil {
-		return nil, fmt.Errorf("no strategy found for deployment type: %s and deployment tier: %s", resourceType, tier)
-	}
-	return strategyMapping[tier], nil
-}
-
-func putStrategyForResource(configMap *v1.ConfigMap, stratMap *strategyMap, resourceType, tier string) error {
-	rawStrategyMapping := configMap.Data[resourceType]
-	if rawStrategyMapping == "" {
-		return fmt.Errorf("aws strategy for resource type: %s is not defined", resourceType)
-	}
-	var strategyMapping map[string]*strategyMap
-	if err := json.Unmarshal([]byte(rawStrategyMapping), &strategyMapping); err != nil {
-		return fmt.Errorf("failed to unmarshal strategy mapping for resource type %s: %v", resourceType, err)
-	}
-	strategyMapping[tier] = stratMap
-	updatedRawStrategyMapping, err := json.Marshal(strategyMapping)
-	if err != nil {
-		return fmt.Errorf("failed to marshal strategy mapping for resource type %s: %v", resourceType, err)
-	}
-	configMap.Data[resourceType] = string(updatedRawStrategyMapping)
-	return nil
-}
+//func getStrategyForResource(configMap *v1.ConfigMap, resourceType, tier string) (*strategyMap, error) {
+//	rawStrategyMapping := configMap.Data[resourceType]
+//	if rawStrategyMapping == "" {
+//		return nil, fmt.Errorf("aws strategy for resource type: %s is not defined", resourceType)
+//	}
+//	var strategyMapping map[string]*strategyMap
+//	if err := json.Unmarshal([]byte(rawStrategyMapping), &strategyMapping); err != nil {
+//		return nil, fmt.Errorf("failed to unmarshal strategy mapping for resource type %s: %v", resourceType, err)
+//	}
+//	if strategyMapping[tier] == nil {
+//		return nil, fmt.Errorf("no strategy found for deployment type: %s and deployment tier: %s", resourceType, tier)
+//	}
+//	return strategyMapping[tier], nil
+//}
+//
+//func putStrategyForResource(configMap *v1.ConfigMap, stratMap *strategyMap, resourceType, tier string) error {
+//	rawStrategyMapping := configMap.Data[resourceType]
+//	if rawStrategyMapping == "" {
+//		return fmt.Errorf("aws strategy for resource type: %s is not defined", resourceType)
+//	}
+//	var strategyMapping map[string]*strategyMap
+//	if err := json.Unmarshal([]byte(rawStrategyMapping), &strategyMapping); err != nil {
+//		return fmt.Errorf("failed to unmarshal strategy mapping for resource type %s: %v", resourceType, err)
+//	}
+//	strategyMapping[tier] = stratMap
+//	updatedRawStrategyMapping, err := json.Marshal(strategyMapping)
+//	if err != nil {
+//		return fmt.Errorf("failed to marshal strategy mapping for resource type %s: %v", resourceType, err)
+//	}
+//	configMap.Data[resourceType] = string(updatedRawStrategyMapping)
+//	return nil
+//}
 
 // GetClustersAvailableZones returns a map containing zone names that are currently available
 func GetClustersAvailableZones(nodes *v1.NodeList) map[string]bool {
@@ -304,7 +302,7 @@ func GetClustersAvailableZones(nodes *v1.NodeList) map[string]bool {
 	return zones
 }
 
-// getVpcCidrBlock returns a cidr block using a key/value tag pairing
+/*// getVpcCidrBlock returns a cidr block using a key/value tag pairing
 func getVpcCidrBlock(session *ec2.EC2, clusterTagName, clusterTagValue string) (string, error) {
 	describeVpcs, err := session.DescribeVpcs(&ec2.DescribeVpcsInput{
 		Filters: []*ec2.Filter{
@@ -326,3 +324,4 @@ func getVpcCidrBlock(session *ec2.EC2, clusterTagName, clusterTagValue string) (
 
 	return aws.StringValue(vpcs[0].CidrBlock), nil
 }
+*/

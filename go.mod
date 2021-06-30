@@ -31,6 +31,7 @@ require (
 	github.com/integr8ly/grafana-operator v2.0.0+incompatible
 	github.com/integr8ly/grafana-operator/v3 v3.10.2
 	github.com/integr8ly/keycloak-client v0.1.4
+	github.com/jstemmer/go-junit-report v0.9.1
 	github.com/keycloak/keycloak-operator v0.0.0-20210506103913-57d81e278bcb
 	github.com/onsi/ginkgo v1.15.0
 	github.com/onsi/gomega v1.10.5

@@ -445,6 +445,9 @@ github.com/jmespath/go-jmespath
 github.com/josharian/intern
 # github.com/json-iterator/go v1.1.10
 github.com/json-iterator/go
+# github.com/jstemmer/go-junit-report v0.9.1
+## explicit
+github.com/jstemmer/go-junit-report/parser
 # github.com/keycloak/keycloak-operator v0.0.0-20210506103913-57d81e278bcb
 ## explicit
 github.com/keycloak/keycloak-operator/pkg/apis/keycloak/v1alpha1

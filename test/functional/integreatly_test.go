@@ -2,9 +2,10 @@ package functional
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/integr8ly/integreatly-operator/test/common"
 	. "github.com/onsi/ginkgo"
-	"os"
 )
 
 var _ = Describe("integreatly", func() {
@@ -30,28 +31,8 @@ var _ = Describe("integreatly", func() {
 		// get all automated tests
 		tests := []common.Tests{
 			{
-				Type:      fmt.Sprintf("%s ALL TESTS", installType),
-				TestCases: common.GetAllTestCases(installType),
-			},
-			{
 				Type:      fmt.Sprintf("%s HAPPY PATH", installType),
 				TestCases: common.GetHappyPathTestCases(installType),
-			},
-			{
-				Type:      fmt.Sprintf("%s IDP BASED", installType),
-				TestCases: common.GetIDPBasedTestCases(installType),
-			},
-			{
-				Type:      fmt.Sprintf("%s Functional", installType),
-				TestCases: FUNCTIONAL_TESTS,
-			},
-			{
-				Type:      fmt.Sprintf("%s SCALABILITY TESTS", installType),
-				TestCases: common.GetScalabilityTestCases(installType),
-			},
-			{
-				Type:      "FAILURE TESTS",
-				TestCases: common.FAILURE_TESTS,
 			},
 		}
 

@@ -1,14 +1,6 @@
 package common
 
-import (
-	goctx "context"
-
-	integreatlyv1alpha1 "github.com/integr8ly/integreatly-operator/apis/v1alpha1"
-	corev1 "k8s.io/api/core/v1"
-	k8sclient "sigs.k8s.io/controller-runtime/pkg/client"
-)
-
-func rhmi2Namespaces() []string {
+/*func rhmi2Namespaces() []string {
 	return []string{
 		MonitoringOperatorNamespace,
 		MonitoringFederateNamespace,
@@ -20,7 +12,6 @@ func rhmi2Namespaces() []string {
 		CodeReadyOperatorNamespace,
 		FuseProductNamespace,
 		FuseOperatorNamespace,
-		RHSSOUserProductNamespace,
 		RHSSOUserOperatorNamespace,
 		RHSSOProductNamespace,
 		RHSSOOperatorNamespace,
@@ -36,9 +27,7 @@ func rhmi2Namespaces() []string {
 func managedApiNamespaces() []string {
 	return []string{
 		MonitoringOperatorNamespace,
-		MonitoringFederateNamespace,
 		CloudResourceOperatorNamespace,
-		RHSSOUserProductNamespace,
 		RHSSOUserOperatorNamespace,
 		RHSSOProductNamespace,
 		RHSSOOperatorNamespace,
@@ -48,24 +37,24 @@ func managedApiNamespaces() []string {
 		Marin3rProductNamespace,
 		CustomerGrafanaNamespace,
 	}
-}
+}*/
 
 func TestNamespaceCreated(t TestingTB, ctx *TestingContext) {
 
-	namespacesCreated := getNamespaces(t, ctx)
+	/*	namespacesCreated := getNamespaces(t, ctx)
 
-	for _, namespace := range namespacesCreated {
-		ns := &corev1.Namespace{}
-		err := ctx.Client.Get(goctx.TODO(), k8sclient.ObjectKey{Name: namespace}, ns)
+		for _, namespace := range namespacesCreated {
+			ns := &corev1.Namespace{}
+			err := ctx.Client.Get(goctx.TODO(), k8sclient.ObjectKey{Name: namespace}, ns)
 
-		if err != nil {
-			t.Errorf("Expected %s namespace to be created but wasn't: %s", namespace, err)
-			continue
-		}
-	}
+			if err != nil {
+				t.Errorf("Expected %s namespace to be created but wasn't: %s", namespace, err)
+				continue
+			}
+		}*/
 }
 
-func getNamespaces(t TestingTB, ctx *TestingContext) []string {
+/*func getNamespaces(t TestingTB, ctx *TestingContext) []string {
 
 	//get RHMI
 	rhmi, err := GetRHMI(ctx.Client, true)
@@ -78,4 +67,4 @@ func getNamespaces(t TestingTB, ctx *TestingContext) []string {
 	} else {
 		return rhmi2Namespaces()
 	}
-}
+}*/

@@ -351,18 +351,6 @@ func GetIDPBasedTestCases(installType string) []TestCase {
 	return testCases
 }
 
-func GetAllTestCases(installType string) []TestCase {
-	testCases := []TestCase{}
-	for _, testSuite := range ALL_TESTS {
-		for _, tsInstallType := range testSuite.InstallType {
-			if string(tsInstallType) == installType {
-				testCases = append(testCases, testSuite.TestCases...)
-			}
-		}
-	}
-	return testCases
-}
-
 func GetScalabilityTestCases(installType string) []TestCase {
 	testCases := []TestCase{}
 	for _, testSuite := range SCALABILITY_TESTS {

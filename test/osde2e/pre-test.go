@@ -1,13 +1,15 @@
 package osde2e
 
 import (
-	"context"
 	goctx "context"
 	"fmt"
+	"golang.org/x/net/context"
 	"strings"
 	"time"
 
+	k8sresources "github.com/integr8ly/integreatly-operator/pkg/resources/k8s"
 	"github.com/integr8ly/integreatly-operator/test/common"
+	"github.com/pkg/errors"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -19,37 +21,29 @@ import (
 
 var (
 	OSD_E2E_PRE_TESTS = []common.TestCase{
-		{Description: "Integreatly Operator pre-test", Test: PreTest},
+		{Description: "Managed-API pre-test", Test: PreTest},
 	}
 	pagerDutySecretName = "pagerduty"
 	deadMansSnitchName  = "deadmanssnitch"
 	smtpSecretName      = "smtp"
-	resourceName        string
 )
 
-//PreTest This tests if an installation of Managed-API or RHMI was finished and is successful
+//PreTest This tests if an installation of Managed-API was finished and is successful
 func PreTest(t common.TestingTB, ctx *common.TestingContext) {
-	err := wait.Poll(time.Second*15, time.Minute*70, func() (done bool, err error) {
+	err := wait.Poll(time.Second*15, time.Minute*40, func() (done bool, err error) {
+
 		rhmi, err := getRHMI(ctx.Client)
 		if err != nil {
 			t.Fatalf("error getting RHMI CR: %v", err)
 		}
 
-		if resourceName == "" {
-			if rhmi.Spec.Type == string(integreatlyv1alpha1.InstallationTypeManagedApi) {
-				resourceName = "rhoam"
-			} else {
-				resourceName = "rhmi"
-			}
-		}
-
-		// Patch RHMI CR CR with cluster storage
-		if rhmi.Spec.UseClusterStorage == "true" || rhmi.Spec.UseClusterStorage == "" {
+		// Patch Managed-API CR with cluster storage
+		if rhmi.Spec.UseClusterStorage == "false" || rhmi.Spec.UseClusterStorage == "" {
 			rhmiCR := fmt.Sprintf(`{
 				"apiVersion": "integreatly.org/v1alpha1",
 				"kind": "RHMI",
 				"spec": {
-					"useClusterStorage" : "false"
+					"useClusterStorage" : "true"
 				}
 			}`)
 
@@ -57,7 +51,7 @@ func PreTest(t common.TestingTB, ctx *common.TestingContext) {
 
 			request := ctx.ExtensionClient.RESTClient().Patch(types.MergePatchType).
 				Resource("rhmis").
-				Name(resourceName).
+				Name("rhoam").
 				Namespace(common.RHMIOperatorNamespace).
 				RequestURI("/apis/integreatly.org/v1alpha1").Body(rhmiCRBytes).Do(context.TODO())
 			_, err := request.Raw()
@@ -138,7 +132,10 @@ func PreTest(t common.TestingTB, ctx *common.TestingContext) {
 
 func getRHMI(client dynclient.Client) (*integreatlyv1alpha1.RHMI, error) {
 	rhmi := &integreatlyv1alpha1.RHMI{}
-	watchNS := common.GetNamespacePrefix()
+	watchNS, err := k8sresources.GetWatchNamespace()
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get watch namespace from getRHMI function")
+	}
 	nsSegments := strings.Split(watchNS, "-")
 	crName := nsSegments[1]
 	if err := client.Get(goctx.TODO(), types.NamespacedName{Name: crName, Namespace: common.RHMIOperatorNamespace}, rhmi); err != nil {
