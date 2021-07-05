@@ -12,6 +12,7 @@ import (
 )
 
 func TestRHMICRMetrics(t TestingTB, ctx *TestingContext) {
+	t.Skip()
 
 	rhmi, err := GetRHMI(ctx.Client, true)
 	if err != nil {

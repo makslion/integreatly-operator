@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	testResultsDirectory = "/test-run-results"
+	testResultsDirectory = "../../test-run-results"
 	jUnitOutputFilename  = "junit-integreatly-operator.xml"
 	addonMetadataName    = "addon-metadata.json"
 	testOutputFileName   = "test-output.txt"
