@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite tests="5" failures="4" time="47.570" name="integreatly-operator">
+	<properties>
+		<property name="go.version" value="go1.16"></property>
+	</properties>
+	<testcase classname="integreatly-operator" name="TestManagedAPI" time="19.010">
+		<failure message="Failed" type="">I0713 11:09:44.385220   19352 request.go:635] Throttling request took 1.000059549s, request: GET:https://api.mvavilovthing.ip84.s1.devshift.org:6443/apis/monitoring.coreos.com/v1?timeout=32s</failure>
+	</testcase>
+	<testcase classname="integreatly-operator" name="TestManagedAPI/Managed-API-e2e-test" time="14.280">
+		<failure message="Failed" type=""></failure>
+	</testcase>
+	<testcase classname="integreatly-operator" name="TestManagedAPI/Managed-API-e2e-test/A01_-_Verify_that_all_stages_in_the_integreatly-operator_CR_report_completed" time="4.160">
+		<failure message="Failed" type=""></failure>
+	</testcase>
+	<testcase classname="integreatly-operator" name="TestManagedAPI/Managed-API-e2e-test/Test_RHMI_installation_CR_metric" time="4.560">
+		<skipped message="I0713 11:09:54.430669   19352 request.go:635] Throttling request took 2.549664144s, request: GET:https://api.mvavilovthing.ip84.s1.devshift.org:6443/apis/controlplane.operator.openshift.io/v1alpha1?timeout=32s"></skipped>
+	</testcase>
+	<testcase classname="integreatly-operator" name="TestManagedAPI/Managed-API-e2e-test/A03_-_Verify_all_namespaces_have_been_created_with_the_correct_name" time="5.560">
+		<failure message="Failed" type="">    namespace_created.go:58: Expected redhat-rhmi-user-sso-operator namespace to be created but wasn&#39;t: namespaces &#34;redhat-rhmi-user-sso-operator&#34; not found</failure>
+	</testcase>
+</testsuite>
